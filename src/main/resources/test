@@ -1,0 +1,6 @@
+Player : Représente un joueur avec ses attributs (id, nom, position, statistiques, etc.).
+Club : Représente un club avec ses attributs (id, nom, coach, statistiques, etc.).
+Championship : Représente un championnat avec ses attributs (nom, pays, etc.).
+PlayerRanking : Représente le classement des joueurs (rang, buts marqués, temps de jeu, etc.).
+ClubRanking : Représente le classement des clubs (rang, points, différence de buts, etc.).
+ChampionshipRanking : Représente le classement des championnats (rang, médiane des différences de buts, etc.).
