@@ -7,5 +7,5 @@ CREATE TABLE goal
     minute       INTEGER           NOT NULL,
     own_goal     BOOLEAN          DEFAULT FALSE,
     championship championship_enum NOT NULL,
-    CHECK ( minute >= 90 )
+    CHECK (minute BETWEEN 1 AND 90)
 )
