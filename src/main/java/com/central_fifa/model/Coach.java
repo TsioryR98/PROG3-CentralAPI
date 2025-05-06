@@ -1,5 +1,6 @@
 package com.central_fifa.model;
 
+import com.central_fifa.model.enums.Championship;
 import lombok.*;
 
 @Getter
@@ -9,6 +10,8 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class Coach {
+    private String id;
     private String name;
     private String nationality;
+    private Championship championship;
 }

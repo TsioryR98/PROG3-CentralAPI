@@ -16,4 +16,5 @@ public class Club {
     private Integer yearCreation;
     private String stadium;
     private Coach coach;
+    private Championship championship;
 }

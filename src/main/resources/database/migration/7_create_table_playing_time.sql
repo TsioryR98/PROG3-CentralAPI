@@ -7,6 +7,7 @@ CREATE TABLE playing_time
     season_id     UUID               NOT NULL REFERENCES season (season_id),
     value         DOUBLE PRECISION   NOT NULL,
     duration_unit duration_unit_enum NOT NULL DEFAULT 'MINUTE',
+    championship  championship_enum  NOT NULL,
     CHECK (value >= 0),
     UNIQUE (player_id, season_id)
 )

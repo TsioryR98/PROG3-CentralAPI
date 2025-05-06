@@ -1,5 +1,6 @@
 package com.central_fifa.model;
 
+import com.central_fifa.model.enums.Championship;
 import com.central_fifa.model.enums.PlayerPosition;
 import lombok.*;
 @Getter
@@ -19,4 +20,5 @@ public class Player {
     private Club club;
     private int scoredGoals;
     private PlayingTime playingTime;
+    private Championship championship;
 }

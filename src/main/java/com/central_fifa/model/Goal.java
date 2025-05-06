@@ -9,8 +9,12 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class ChampionshipRanking {
-    private int rank;
+public class Goal {
+    private String id;
+    private Player player;
+    private Club club;
+    private Match match;
+    private Integer minute;
+    private Boolean ownGoal;
     private Championship championship;
-    private double differenceGoalsMedian;
 }

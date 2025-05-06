@@ -7,6 +7,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @Setter
+@NoArgsConstructor
 @ToString
 @EqualsAndHashCode
 public class PlayerRanking {
@@ -17,6 +18,7 @@ public class PlayerRanking {
     private PlayerPosition position;
     private String nationality;
     private int age;
+    private Club club;
     private Championship championship;
     private int scoredGoals;
     private PlayingTime playingTime;

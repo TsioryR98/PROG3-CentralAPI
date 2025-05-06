@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DefaultRestController {
 
-    @PostMapping("/syncrhonization")
+    @PostMapping("/synchronization")
     public Object synchronize() {
         return null;
     }

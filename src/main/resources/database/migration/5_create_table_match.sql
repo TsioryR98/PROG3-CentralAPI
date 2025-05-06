@@ -9,5 +9,6 @@ CREATE TABLE match
     match_datetime TIMESTAMP,
     status         match_status_enum NOT NULL DEFAULT 'NOT_STARTED',
     season_id      UUID REFERENCES season (season_id),
+    championship   championship_enum NOT NULL,
     CHECK (home_club_id <> away_club_id)
 )

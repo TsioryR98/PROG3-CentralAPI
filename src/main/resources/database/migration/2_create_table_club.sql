@@ -6,5 +6,7 @@ CREATE TABLE club
     year_creation INTEGER             NOT NULL,
     stadium       VARCHAR(200)        NOT NULL,
     coach_id      UUID REFERENCES coach (coach_id),
+    championship  championship_enum   NOT NULL,
+    UNIQUE (club_name, championship),
     UNIQUE (club_id, coach_id)
 );
