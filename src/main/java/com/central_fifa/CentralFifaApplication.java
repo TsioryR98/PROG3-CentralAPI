@@ -1,4 +1,4 @@
-package com.example.central_fifa;
+package com.central_fifa;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
