@@ -1,4 +1,4 @@
-package com.central_fifa.dao.centralOperation;
+package com.central_fifa.dao.centralOperations;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
