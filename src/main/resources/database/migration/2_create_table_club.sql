@@ -6,7 +6,7 @@ CREATE TABLE club
     club_name        Varchar(200)      NOT NULL,
     championship     championship_enum NOT NULL,
     acronym          Varchar(10)       NOT NULL,
-    year_creation    TIMESTAMP         NOT NULL,
+    year_creation    INTEGER           NOT NULL,
     stadium          Varchar(200)      NOT NULL,
     coach_name       Varchar(200)      NOT NULL,
     nationality      Varchar(100)      NOT NULL,

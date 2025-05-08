@@ -1,4 +1,4 @@
-package com.central_fifa.dao;
+package com.central_fifa.dao.championshipOperations;
 
 import com.central_fifa.config.DbConnection;
 import com.central_fifa.model.DifferenceGoalMedian;
@@ -16,7 +16,7 @@ public class DifferenceGoalMedianDao {
 
     public void save(DifferenceGoalMedian median) {
         String sql = "INSERT INTO difference_goal_median (championship, difference_goal_median) " +
-                "VALUES (?, ?) " +
+                "VALUES (?::championship_enum, ?) " +
                 "ON CONFLICT (championship) DO UPDATE SET " +
                 "difference_goal_median = EXCLUDED.difference_goal_median";
 

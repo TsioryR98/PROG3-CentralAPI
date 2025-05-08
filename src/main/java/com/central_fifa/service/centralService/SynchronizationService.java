@@ -1,10 +1,16 @@
 package com.central_fifa.service.centralService;
 
+import com.central_fifa.dao.championshipOperations.DifferenceGoalMedianDao;
+import com.central_fifa.dao.championshipOperations.PlayerDAO;
 import com.central_fifa.dao.championshipOperations.*;
+import com.central_fifa.model.Club;
+import com.central_fifa.model.DifferenceGoalMedian;
+import com.central_fifa.model.Player;
 import com.central_fifa.model.enums.Championship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,22 +24,24 @@ public class SynchronizationService {
     private static final Logger logger = LoggerFactory.getLogger(SynchronizationService.class);
 
     private final RestTemplate restTemplate;
+    private final ClubDAO clubDAO;
+    private final PlayerDAO playerDAO;
+    private final DifferenceGoalMedianDao differenceGoalMedianDao;
+    private final DataValidator dataValidator;
 
     // API endpoints
     private static final Map<Integer, ApiEndpoint> API_ENDPOINTS = Map.of(
             8081, new ApiEndpoint("http://localhost:8081/", Championship.LA_LIGA),
             8082, new ApiEndpoint("http://localhost:8082/", Championship.LIGUE_1)
     );
-    private final ClubDAO clubDAO;
-    private final PlayerDAO playerDAO;
-    private final DifferenceGoalMedianDao differenceGoalMedianDao;
 
     @Autowired
-    public SynchronizationService(RestTemplate restTemplate, ClubDAO clubDAO, PlayerDAO playerDAO, DifferenceGoalMedianDao differenceGoalMedianDao) {
+    public SynchronizationService(RestTemplate restTemplate, ClubDAO clubDAO, PlayerDAO playerDAO, DifferenceGoalMedianDao differenceGoalMedianDao, DataValidator dataValidator) {
         this.restTemplate = restTemplate;
         this.clubDAO = clubDAO;
         this.playerDAO = playerDAO;
         this.differenceGoalMedianDao = differenceGoalMedianDao;
+        this.dataValidator = dataValidator;
     }
 
     public Map<String, Object> synchronizeData() {
@@ -45,28 +53,30 @@ public class SynchronizationService {
             String apiKey = "api-" + entry.getKey();
 
             try {
-                // Récupérer et insérer les clubs
+                // Récupérer et valider les clubs
                 List<Club> clubs = fetchClubs(baseUrl);
-                clubs.forEach(club -> {
-                    club.setChampionship(championship);
-                    clubDAO.save(club);
-                });
+                clubs.stream()
+                        .peek(club -> club.setChampionship(championship)) // Définir le championship
+                        .filter(dataValidator::isValidClub)
+                        .forEach(clubDAO::save);
                 result.put(apiKey + "-clubs", clubs);
 
-                // Récupérer et insérer les joueurs
+                // Récupérer et valider les joueurs
                 List<Player> players = fetchPlayers(baseUrl);
-                players.forEach(player -> {
-                    player.setChampionship(championship);
-                    playerDAO.save(player);
-                });
+                players.stream()
+                        .peek(player -> player.setChampionship(championship)) // Définir le championship
+                        .filter(dataValidator::isValidPlayer)
+                        .forEach(playerDAO::save);
                 result.put(apiKey + "-players", players);
 
-                // Récupérer et insérer la médiane des goals
+                // Récupérer et valider la médiane des goals
                 Integer median = fetchDifferenceGoalMedian(baseUrl);
                 if (median != null) {
                     DifferenceGoalMedian medianModel = new DifferenceGoalMedian(median, championship);
-                    differenceGoalMedianDao.save(medianModel);
-                    result.put(apiKey + "-differenceGoalsMedian", medianModel);
+                    if (dataValidator.isValidDifferenceGoalMedian(medianModel)) {
+                        differenceGoalMedianDao.save(medianModel);
+                        result.put(apiKey + "-differenceGoalsMedian", medianModel);
+                    }
                 }
 
             } catch (Exception e) {
@@ -85,7 +95,7 @@ public class SynchronizationService {
                     url,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Club>>() {
+                    new ParameterizedTypeReference<>() {
                     }
             );
             return response.getBody() != null ? response.getBody() : Collections.emptyList();
