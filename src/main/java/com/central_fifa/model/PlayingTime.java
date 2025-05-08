@@ -11,8 +11,6 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class PlayingTime {
-    private String id;
     private Double value;
     private DurationUnit durationUnit;
-    private Championship championship;
 }

@@ -10,8 +10,6 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class Coach {
-    private String id;
     private String name;
     private String nationality;
-    private Championship championship;
 }
