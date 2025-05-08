@@ -27,14 +27,20 @@ public class SynchronizationService {
             8081, new ApiEndpoint("http://localhost:8081/", Championship.LA_LIGA),
             8082, new ApiEndpoint("http://localhost:8082/", Championship.LIGUE_1)
     );
+    private final ClubDAO clubDAO;
+    private final PlayerDAO playerDAO;
+    private final DifferenceGoalMedianDao differenceGoalMedianDao;
 
     @Autowired
-    public SynchronizationService(RestTemplate restTemplate) {
+    public SynchronizationService(RestTemplate restTemplate, ClubDAO clubDAO, PlayerDAO playerDAO, DifferenceGoalMedianDao differenceGoalMedianDao) {
         this.restTemplate = restTemplate;
+        this.clubDAO = clubDAO;
+        this.playerDAO = playerDAO;
+        this.differenceGoalMedianDao = differenceGoalMedianDao;
     }
 
     public Map<String, Object> synchronizeData() {
-        Map<String, Object> result = new LinkedHashMap<>(); // LinkedHashMap pour garder l'ordre
+        Map<String, Object> result = new LinkedHashMap<>();
 
         for (Map.Entry<Integer, ApiEndpoint> entry : API_ENDPOINTS.entrySet()) {
             String baseUrl = entry.getValue().getUrl();
@@ -42,23 +48,28 @@ public class SynchronizationService {
             String apiKey = "api-" + entry.getKey();
 
             try {
-                // Récupérer les clubs
+                // Récupérer et insérer les clubs
                 List<Club> clubs = fetchClubs(baseUrl);
-                clubs.forEach(club -> club.setChampionship(championship));
+                clubs.forEach(club -> {
+                    club.setChampionship(championship);
+                    clubDAO.save(club);
+                });
                 result.put(apiKey + "-clubs", clubs);
 
-                // Récupérer les joueurs
+                // Récupérer et insérer les joueurs
                 List<Player> players = fetchPlayers(baseUrl);
-                players.forEach(player -> player.setChampionship(championship));
+                players.forEach(player -> {
+                    player.setChampionship(championship);
+                    playerDAO.save(player);
+                });
                 result.put(apiKey + "-players", players);
 
-                // Récupérer la médiane des goals
+                // Récupérer et insérer la médiane des goals
                 Integer median = fetchDifferenceGoalMedian(baseUrl);
                 if (median != null) {
-                    Map<String, Object> medianData = new HashMap<>();
-                    medianData.put("value", median);
-                    medianData.put("championship", championship);
-                    result.put(apiKey + "-differenceGoalsMedian", medianData);
+                    DifferenceGoalMedian medianModel = new DifferenceGoalMedian(median, championship);
+                    differenceGoalMedianDao.save(medianModel);
+                    result.put(apiKey + "-differenceGoalsMedian", medianModel);
                 }
 
             } catch (Exception e) {
