@@ -2,12 +2,20 @@ package com.central_fifa.dao.championshipOperations;
 
 import com.central_fifa.config.DbConnection;
 import com.central_fifa.model.Player;
+import com.central_fifa.model.PlayerRanking;
+import com.central_fifa.model.PlayingTime;
+import com.central_fifa.model.enums.Championship;
+import com.central_fifa.model.enums.DurationUnit;
+import com.central_fifa.model.enums.PlayerPosition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -38,5 +46,58 @@ public class PlayerDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Error saving player: " + e.getMessage(), e);
         }
+    }
+
+    public List<PlayerRanking> findBestPlayers(int top) {
+        String sql = """
+                SELECT
+                    p.player_id AS id,
+                    p.player_name AS name,
+                    p.number,
+                    p.position,
+                    p.nationality,
+                    p.age,
+                    p.championship,
+                    p.scored_goals,
+                    p.playing_time_value AS value,
+                    p.playing_time_duration_unit AS durationUnit
+                FROM player p
+                ORDER BY p.scored_goals DESC, p.playing_time_value DESC
+                LIMIT ?
+                """;
+
+        List<PlayerRanking> players = new ArrayList<>();
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, top);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                int rank = 1;
+                while (resultSet.next()) {
+                    PlayerRanking player = new PlayerRanking(
+                            rank++,
+                            resultSet.getString("id"),
+                            resultSet.getString("name"),
+                            resultSet.getInt("number"),
+                            PlayerPosition.valueOf(resultSet.getString("position")),
+                            resultSet.getString("nationality"),
+                            resultSet.getInt("age"),
+                            Championship.valueOf(resultSet.getString("championship")),
+                            resultSet.getInt("scored_goals"),
+                            new PlayingTime(
+                                    resultSet.getDouble("value"),
+                                    DurationUnit.valueOf(resultSet.getString("durationUnit"))
+                            )
+                    );
+                    players.add(player);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching best players: " + e.getMessage(), e);
+        }
+
+        return players;
     }
 }
