@@ -21,85 +21,100 @@ public class SynchronizationService {
     private static final Logger logger = LoggerFactory.getLogger(SynchronizationService.class);
 
     private final RestTemplate restTemplate;
-    private final CoachDAO coachDAO;
-    private final ClubDAO clubDAO;
-    private final PlayerDAO playerDAO;
-    private final SeasonDAO seasonDAO;
-    private final MatchDAO matchDAO;
-    private final GoalDAO goalDAO;
-    private final PlayingTimeDAO playingTimeDAO;
-    private final MatchScoreDAO matchScoreDAO;
 
     // API endpoints
     private static final Map<Integer, ApiEndpoint> API_ENDPOINTS = Map.of(
-            8081, new ApiEndpoint("http://localhost:8081", Championship.LA_LIGA),
-            8082, new ApiEndpoint("http://localhost:8082", Championship.LIGUE_1)
+            8081, new ApiEndpoint("http://localhost:8081/", Championship.LA_LIGA),
+            8082, new ApiEndpoint("http://localhost:8082/", Championship.LIGUE_1)
     );
 
-    // Current season year - could be made configurable
-    private static final int CURRENT_SEASON_YEAR = 2023;
-
     @Autowired
-    public SynchronizationService(RestTemplate restTemplate,
-                                  CoachDAO coachDAO,
-                                  ClubDAO clubDAO,
-                                  PlayerDAO playerDAO,
-                                  SeasonDAO seasonDAO,
-                                  MatchDAO matchDAO,
-                                  GoalDAO goalDAO,
-                                  PlayingTimeDAO playingTimeDAO,
-                                  MatchScoreDAO matchScoreDAO) {
+    public SynchronizationService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.coachDAO = coachDAO;
-        this.clubDAO = clubDAO;
-        this.playerDAO = playerDAO;
-        this.seasonDAO = seasonDAO;
-        this.matchDAO = matchDAO;
-        this.goalDAO = goalDAO;
-        this.playingTimeDAO = playingTimeDAO;
-        this.matchScoreDAO = matchScoreDAO;
     }
 
     public Map<String, Object> synchronizeData() {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>(); // LinkedHashMap pour garder l'ordre
 
-        // Liste des endpoints à tester
-        List<String> endpoints = List.of(
-                "/players",
-                "/players/{id}/statistics/{seasonYear}",
-                "/seasons",
-                "/clubs",
-                "/clubs/{id}/players",
-                "/clubs/statistics/{seasonYear}",
-                "/matches/{seasonYear}"
-        );
+        for (Map.Entry<Integer, ApiEndpoint> entry : API_ENDPOINTS.entrySet()) {
+            String baseUrl = entry.getValue().getUrl();
+            Championship championship = entry.getValue().getChampionship();
+            String apiKey = "api-" + entry.getKey();
 
-        for (ApiEndpoint endpoint : API_ENDPOINTS.values()) {
-            for (String path : endpoints) {
-                try {
-                    // Remplacement des paramètres dynamiques par des valeurs par défaut
-                    String url = endpoint.getUrl() + path
-                            .replace("{id}", "sample-id")
-                            .replace("{seasonYear}", String.valueOf(CURRENT_SEASON_YEAR));
+            try {
+                // Récupérer les clubs
+                List<Club> clubs = fetchClubs(baseUrl);
+                clubs.forEach(club -> club.setChampionship(championship));
+                result.put(apiKey + "-clubs", clubs);
 
-                    // Test de connexion
-                    ResponseEntity<String> response = restTemplate.exchange(
-                            url,
-                            HttpMethod.GET,
-                            null,
-                            String.class
-                    );
-                    result.put(url, response.getStatusCode().is2xxSuccessful() ? "Connected" : "Failed");
-                } catch (RestClientException e) {
-                    result.put(endpoint.getUrl() + path, "Failed: " + e.getMessage());
+                // Récupérer les joueurs
+                List<Player> players = fetchPlayers(baseUrl);
+                players.forEach(player -> player.setChampionship(championship));
+                result.put(apiKey + "-players", players);
+
+                // Récupérer la médiane des goals
+                Integer median = fetchDifferenceGoalMedian(baseUrl);
+                if (median != null) {
+                    Map<String, Object> medianData = new HashMap<>();
+                    medianData.put("value", median);
+                    medianData.put("championship", championship);
+                    result.put(apiKey + "-differenceGoalsMedian", medianData);
                 }
+
+            } catch (Exception e) {
+                logger.error("Error synchronizing data from {}", baseUrl, e);
+                result.put(apiKey + "-error", "Failed to fetch data: " + e.getMessage());
             }
         }
 
         return result;
     }
 
-    // Helper class to store API endpoint information
+    private List<Club> fetchClubs(String baseUrl) {
+        String url = baseUrl + "/championship/clubs";
+        try {
+            ResponseEntity<List<Club>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Club>>() {
+                    }
+            );
+            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+        } catch (RestClientException e) {
+            logger.error("Failed to fetch clubs from {}", url, e);
+            throw new RuntimeException("Failed to fetch clubs from " + url, e);
+        }
+    }
+
+    private List<Player> fetchPlayers(String baseUrl) {
+        String url = baseUrl + "/championship/players"; // Correction du endpoint
+        try {
+            ResponseEntity<List<Player>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Player>>() {
+                    }
+            );
+            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+        } catch (RestClientException e) {
+            logger.error("Failed to fetch players from {}", url, e);
+            throw new RuntimeException("Failed to fetch players from " + url, e);
+        }
+    }
+
+    private Integer fetchDifferenceGoalMedian(String baseUrl) {
+        String url = baseUrl + "/championship/differenceGoalsMedian";
+        try {
+            ResponseEntity<Integer> response = restTemplate.getForEntity(url, Integer.class);
+            return response.getBody();
+        } catch (RestClientException e) {
+            logger.error("Failed to fetch difference goal median from {}", url, e);
+            throw new RuntimeException("Failed to fetch difference goal median from " + url, e);
+        }
+    }
+
     private static class ApiEndpoint {
         private final String url;
         private final Championship championship;
