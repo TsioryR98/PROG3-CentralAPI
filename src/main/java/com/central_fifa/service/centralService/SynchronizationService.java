@@ -1,10 +1,13 @@
 package com.central_fifa.service.centralService;
 
 import com.central_fifa.dao.championshipOperations.*;
+import com.central_fifa.model.Club;
+import com.central_fifa.model.Player;
 import com.central_fifa.model.enums.Championship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

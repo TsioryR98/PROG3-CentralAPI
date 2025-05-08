@@ -1,5 +1,6 @@
 package com.central_fifa.dao;
 
+import com.central_fifa.dao.championshipOperations.GenericDAO;
 import com.central_fifa.model.PlayingTime;
 import com.central_fifa.model.enums.DurationUnit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +13,7 @@ import java.util.Optional;
 public class PlayingTimeDAO implements GenericDAO<PlayingTime> {
 
     @Override
-    public void save(PlayingTime playingTime) {
-
-    }
-
-    @Override
     public Optional<PlayingTime> findById(String id) {
         return Optional.empty();
-    }
-
-    @Override
-    public void delete(PlayingTime playingTime) {
-
     }
 }
