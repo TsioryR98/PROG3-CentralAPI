@@ -48,7 +48,7 @@ public class PlayerDAO {
         }
     }
 
-    public List<PlayerRanking> findBestPlayers(int top) {
+    public List<Player> findBestPlayers(int top) {
         String sql = """
                 SELECT
                     p.player_id AS id,
@@ -66,7 +66,7 @@ public class PlayerDAO {
                 LIMIT ?
                 """;
 
-        List<PlayerRanking> players = new ArrayList<>();
+        List<Player> players = new ArrayList<>();
 
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -74,10 +74,8 @@ public class PlayerDAO {
             preparedStatement.setInt(1, top);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                int rank = 1;
                 while (resultSet.next()) {
-                    PlayerRanking player = new PlayerRanking(
-                            rank++,
+                    Player player = new Player(
                             resultSet.getString("id"),
                             resultSet.getString("name"),
                             resultSet.getInt("number"),

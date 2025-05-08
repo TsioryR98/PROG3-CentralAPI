@@ -1,6 +1,7 @@
 package com.central_fifa.service.centralService;
 
 import com.central_fifa.dao.championshipOperations.PlayerDAO;
+import com.central_fifa.model.Player;
 import com.central_fifa.model.PlayerRanking;
 import com.central_fifa.model.enums.DurationUnit;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class PlayerService {
     }
 
     public List<PlayerRanking> getBestPlayers(int top, DurationUnit playingTimeUnit) {
-        List<PlayerRanking> players = playerDAO.findBestPlayers(top);
+        List<Player> players = playerDAO.findBestPlayers(top);
 
         return players.stream()
                 .peek(player -> {
@@ -30,6 +31,18 @@ public class PlayerService {
                     player.getPlayingTime().setValue(convertedTime);
                     player.getPlayingTime().setDurationUnit(playingTimeUnit);
                 })
+                .map(player -> new PlayerRanking(
+                        players.indexOf(player) + 1,
+                        player.getId(),
+                        player.getName(),
+                        player.getNumber(),
+                        player.getPosition(),
+                        player.getNationality(),
+                        player.getAge(),
+                        player.getChampionship(),
+                        player.getScoredGoals(),
+                        player.getPlayingTime()
+                ))
                 .collect(Collectors.toList());
     }
 }
