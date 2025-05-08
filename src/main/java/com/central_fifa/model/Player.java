@@ -3,6 +3,7 @@ package com.central_fifa.model;
 import com.central_fifa.model.enums.Championship;
 import com.central_fifa.model.enums.PlayerPosition;
 import lombok.*;
+
 @Getter
 @AllArgsConstructor
 @Setter

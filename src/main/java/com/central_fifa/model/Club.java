@@ -10,11 +10,10 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class Club {
-    private String id;
-    private String name;
-    private String acronym;
-    private Integer yearCreation;
-    private String stadium;
-    private Coach coach;
+    private ClubMinimumInfo club;
+    private Integer scoredGoals;
+    private Integer concededGoals;
+    private Integer differenceGoals;
+    private Integer cleanSheetNumber;
     private Championship championship;
 }

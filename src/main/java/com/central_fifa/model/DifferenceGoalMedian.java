@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class Coach {
-    private String name;
-    private String nationality;
+public class DifferenceGoalMedian {
+    private int median;
+    private Championship championship;
 }
