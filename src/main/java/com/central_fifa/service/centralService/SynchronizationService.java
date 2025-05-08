@@ -1,7 +1,10 @@
 package com.central_fifa.service.centralService;
 
+import com.central_fifa.dao.championshipOperations.DifferenceGoalMedianDao;
+import com.central_fifa.dao.championshipOperations.PlayerDAO;
 import com.central_fifa.dao.championshipOperations.*;
 import com.central_fifa.model.Club;
+import com.central_fifa.model.DifferenceGoalMedian;
 import com.central_fifa.model.Player;
 import com.central_fifa.model.enums.Championship;
 import org.slf4j.Logger;
@@ -21,6 +24,10 @@ public class SynchronizationService {
     private static final Logger logger = LoggerFactory.getLogger(SynchronizationService.class);
 
     private final RestTemplate restTemplate;
+    private final ClubDAO clubDAO;
+    private final PlayerDAO playerDAO;
+    private final DifferenceGoalMedianDao differenceGoalMedianDao;
+    private final DataValidator dataValidator;
 
     // API endpoints
     private static final Map<Integer, ApiEndpoint> API_ENDPOINTS = Map.of(
@@ -29,12 +36,16 @@ public class SynchronizationService {
     );
 
     @Autowired
-    public SynchronizationService(RestTemplate restTemplate) {
+    public SynchronizationService(RestTemplate restTemplate, ClubDAO clubDAO, PlayerDAO playerDAO, DifferenceGoalMedianDao differenceGoalMedianDao, DataValidator dataValidator) {
         this.restTemplate = restTemplate;
+        this.clubDAO = clubDAO;
+        this.playerDAO = playerDAO;
+        this.differenceGoalMedianDao = differenceGoalMedianDao;
+        this.dataValidator = dataValidator;
     }
 
     public Map<String, Object> synchronizeData() {
-        Map<String, Object> result = new LinkedHashMap<>(); // LinkedHashMap pour garder l'ordre
+        Map<String, Object> result = new LinkedHashMap<>();
 
         for (Map.Entry<Integer, ApiEndpoint> entry : API_ENDPOINTS.entrySet()) {
             String baseUrl = entry.getValue().getUrl();
@@ -42,23 +53,30 @@ public class SynchronizationService {
             String apiKey = "api-" + entry.getKey();
 
             try {
-                // Récupérer les clubs
+                // Récupérer et valider les clubs
                 List<Club> clubs = fetchClubs(baseUrl);
-                clubs.forEach(club -> club.setChampionship(championship));
+                clubs.stream()
+                        .peek(club -> club.setChampionship(championship)) // Définir le championship
+                        .filter(dataValidator::isValidClub)
+                        .forEach(clubDAO::save);
                 result.put(apiKey + "-clubs", clubs);
 
-                // Récupérer les joueurs
+                // Récupérer et valider les joueurs
                 List<Player> players = fetchPlayers(baseUrl);
-                players.forEach(player -> player.setChampionship(championship));
+                players.stream()
+                        .peek(player -> player.setChampionship(championship)) // Définir le championship
+                        .filter(dataValidator::isValidPlayer)
+                        .forEach(playerDAO::save);
                 result.put(apiKey + "-players", players);
 
-                // Récupérer la médiane des goals
+                // Récupérer et valider la médiane des goals
                 Integer median = fetchDifferenceGoalMedian(baseUrl);
                 if (median != null) {
-                    Map<String, Object> medianData = new HashMap<>();
-                    medianData.put("value", median);
-                    medianData.put("championship", championship);
-                    result.put(apiKey + "-differenceGoalsMedian", medianData);
+                    DifferenceGoalMedian medianModel = new DifferenceGoalMedian(median, championship);
+                    if (dataValidator.isValidDifferenceGoalMedian(medianModel)) {
+                        differenceGoalMedianDao.save(medianModel);
+                        result.put(apiKey + "-differenceGoalsMedian", medianModel);
+                    }
                 }
 
             } catch (Exception e) {
@@ -77,7 +95,7 @@ public class SynchronizationService {
                     url,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Club>>() {
+                    new ParameterizedTypeReference<>() {
                     }
             );
             return response.getBody() != null ? response.getBody() : Collections.emptyList();

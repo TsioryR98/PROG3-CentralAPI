@@ -18,8 +18,7 @@ public class Player {
     private PlayerPosition position;
     private String nationality;
     private Integer age;
-    private int scoredGoals;
     private Championship championship;
+    private int scoredGoals;
     private PlayingTime playingTime;
-
 }

@@ -17,7 +17,4 @@ CREATE TABLE player
     playing_time_value DOUBLE PRECISION DEFAULT 0,
     playing_time_duration_unit duration_unit_enum DEFAULT 'MINUTE',
     PRIMARY KEY (player_id, championship)
-)
-
-INSERT INTO player (player_id, player_name, number, position, nationality, age, championship, scored_goals,playing_time_value,playing_time_duration_unit)
-VALUES (?, ?, ?, ?, ?, ?, ?::championship, ?, ?, ?::playing_time_duration_unit)
+);
