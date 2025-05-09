@@ -10,9 +10,13 @@ public class DataValidator {
 
     public boolean isValidClub(Club club) {
         return club != null &&
-                club.getClub() != null &&
-                club.getClub().getId() != null &&
-                club.getClub().getName() != null &&
+                club.getId() != null &&
+                club.getName() != null &&
+                club.getAcronym() != null &&
+                club.getYearCreation() != null &&
+                club.getStadium() != null &&
+                club.getCoachName() != null &&
+                club.getCoachNationality() != null &&
                 club.getChampionship() != null;
     }
 

@@ -40,8 +40,8 @@ public class PlayerDAO {
             preparedStatement.setInt(6, player.getAge());
             preparedStatement.setString(7, player.getChampionship().name());
             preparedStatement.setInt(8, player.getScoredGoals());
-            preparedStatement.setDouble(9, player.getPlayingTime().getValue());
-            preparedStatement.setString(10, player.getPlayingTime().getDurationUnit().name());
+            preparedStatement.setDouble(9, player.getPlayingTimeValue());
+            preparedStatement.setString(10, player.getPlayingTimeDurationUnit().name());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error saving player: " + e.getMessage(), e);
@@ -84,10 +84,8 @@ public class PlayerDAO {
                             resultSet.getInt("age"),
                             Championship.valueOf(resultSet.getString("championship")),
                             resultSet.getInt("scored_goals"),
-                            new PlayingTime(
-                                    resultSet.getDouble("value"),
-                                    DurationUnit.valueOf(resultSet.getString("durationUnit"))
-                            )
+                            resultSet.getDouble("value"),
+                            DurationUnit.valueOf(resultSet.getString("durationUnit"))
                     );
                     players.add(player);
                 }

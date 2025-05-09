@@ -1,14 +1,14 @@
 package com.central_fifa.dto;
 
+import com.central_fifa.model.PlayingTime;
 import com.central_fifa.model.enums.Championship;
 import com.central_fifa.model.enums.PlayerPosition;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class PlayerDTO {
     private String id;
     private String name;
@@ -16,6 +16,7 @@ public class PlayerDTO {
     private PlayerPosition position;
     private String nationality;
     private Integer age;
-    private ClubDTO club;
     private Championship championship;
+    private int scoredGoals;
+    private PlayingTime playingTime;
 }

@@ -3,6 +3,7 @@ package com.central_fifa.service.centralService;
 import com.central_fifa.dao.championshipOperations.PlayerDAO;
 import com.central_fifa.model.Player;
 import com.central_fifa.model.PlayerRanking;
+import com.central_fifa.model.PlayingTime;
 import com.central_fifa.model.enums.DurationUnit;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +25,12 @@ public class PlayerService {
         return players.stream()
                 .peek(player -> {
                     double convertedTime = switch (playingTimeUnit) {
-                        case SECOND -> player.getPlayingTime().getValue() * 60 * 60;
-                        case MINUTE -> player.getPlayingTime().getValue() * 60;
-                        case HOUR -> player.getPlayingTime().getValue();
+                        case SECOND -> player.getPlayingTimeValue() * 60 * 60;
+                        case MINUTE -> player.getPlayingTimeValue() * 60;
+                        case HOUR -> player.getPlayingTimeValue();
                     };
-                    player.getPlayingTime().setValue(convertedTime);
-                    player.getPlayingTime().setDurationUnit(playingTimeUnit);
+                    player.setPlayingTimeValue(convertedTime);
+                    player.setPlayingTimeDurationUnit(playingTimeUnit);
                 })
                 .map(player -> new PlayerRanking(
                         players.indexOf(player) + 1,
@@ -41,7 +42,7 @@ public class PlayerService {
                         player.getAge(),
                         player.getChampionship(),
                         player.getScoredGoals(),
-                        player.getPlayingTime()
+                        new PlayingTime(player.getPlayingTimeValue(), player.getPlayingTimeDurationUnit())
                 ))
                 .collect(Collectors.toList());
     }

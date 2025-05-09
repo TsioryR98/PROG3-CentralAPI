@@ -25,14 +25,14 @@ public class ClubDAO {
 
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, club.getClub().getId());
-            preparedStatement.setString(2, club.getClub().getName());
+            preparedStatement.setString(1, club.getId());
+            preparedStatement.setString(2, club.getName());
             preparedStatement.setString(3, club.getChampionship().name());
-            preparedStatement.setString(4, club.getClub().getAcronym());
-            preparedStatement.setInt(5, club.getClub().getYearCreation());
-            preparedStatement.setString(6, club.getClub().getStadium());
-            preparedStatement.setString(7, club.getClub().getCoach().getName());
-            preparedStatement.setString(8, club.getClub().getCoach().getNationality());
+            preparedStatement.setString(4, club.getAcronym());
+            preparedStatement.setInt(5, club.getYearCreation());
+            preparedStatement.setString(6, club.getStadium());
+            preparedStatement.setString(7, club.getCoachName());
+            preparedStatement.setString(8, club.getCoachNationality());
             preparedStatement.setInt(9, club.getScoredGoals());
             preparedStatement.setInt(10, club.getConcededGoals());
             preparedStatement.setInt(11, club.getDifferenceGoals());

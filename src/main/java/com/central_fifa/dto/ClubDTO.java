@@ -1,5 +1,6 @@
 package com.central_fifa.dto;
 
+import com.central_fifa.model.ClubMinimumInfo;
 import com.central_fifa.model.enums.Championship;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,11 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ClubDTO {
-    private String id;
-    private String name;
-    private String acronym;
-    private Integer yearCreation;
-    private String stadium;
-    private CoachDTO coach;
-    private Championship championship;
+    private ClubMinimumInfo club;
+    private int rankingPoints;
+    private int scoredGoals;
+    private int concededGoals;
+    private int differenceGoals;
+    private int cleanSheetNumber;
 }

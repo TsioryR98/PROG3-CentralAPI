@@ -3,6 +3,8 @@ package com.central_fifa.service.centralService;
 import com.central_fifa.dao.championshipOperations.DifferenceGoalMedianDao;
 import com.central_fifa.dao.championshipOperations.PlayerDAO;
 import com.central_fifa.dao.championshipOperations.*;
+import com.central_fifa.dto.ClubDTO;
+import com.central_fifa.dto.PlayerDTO;
 import com.central_fifa.model.Club;
 import com.central_fifa.model.DifferenceGoalMedian;
 import com.central_fifa.model.Player;
@@ -18,6 +20,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SynchronizationService {
@@ -53,7 +56,7 @@ public class SynchronizationService {
             String apiKey = "api-" + entry.getKey();
 
             try {
-                // Récupérer et valider les clubs
+                // get and validate the clubs
                 List<Club> clubs = fetchClubs(baseUrl);
                 clubs.stream()
                         .peek(club -> club.setChampionship(championship)) // Définir le championship
@@ -61,7 +64,7 @@ public class SynchronizationService {
                         .forEach(clubDAO::save);
                 result.put(apiKey + "-clubs", clubs);
 
-                // Récupérer et valider les joueurs
+                // get and validate the players
                 List<Player> players = fetchPlayers(baseUrl);
                 players.stream()
                         .peek(player -> player.setChampionship(championship)) // Définir le championship
@@ -69,7 +72,7 @@ public class SynchronizationService {
                         .forEach(playerDAO::save);
                 result.put(apiKey + "-players", players);
 
-                // Récupérer et valider la médiane des goals
+                // get and validate the goals mediana
                 Integer median = fetchDifferenceGoalMedian(baseUrl);
                 if (median != null) {
                     DifferenceGoalMedian medianModel = new DifferenceGoalMedian(median, championship);
@@ -91,14 +94,31 @@ public class SynchronizationService {
     private List<Club> fetchClubs(String baseUrl) {
         String url = baseUrl + "/championship/clubs";
         try {
-            ResponseEntity<List<Club>> response = restTemplate.exchange(
+            ResponseEntity<List<ClubDTO>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
                     new ParameterizedTypeReference<>() {
                     }
             );
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+            return response.getBody() != null
+                    ? response.getBody().stream()
+                    .map(dto -> new Club(
+                            dto.getClub().getId(),
+                            dto.getClub().getName(),
+                            dto.getClub().getAcronym(),
+                            dto.getClub().getYearCreation(),
+                            dto.getClub().getStadium(),
+                            dto.getClub().getCoach().getName(),
+                            dto.getClub().getCoach().getNationality(),
+                            dto.getScoredGoals(),
+                            dto.getConcededGoals(),
+                            dto.getDifferenceGoals(),
+                            dto.getCleanSheetNumber(),
+                            null
+                    ))
+                    .collect(Collectors.toList())
+                    : Collections.emptyList();
         } catch (RestClientException e) {
             logger.error("Failed to fetch clubs from {}", url, e);
             throw new RuntimeException("Failed to fetch clubs from " + url, e);
@@ -106,16 +126,31 @@ public class SynchronizationService {
     }
 
     private List<Player> fetchPlayers(String baseUrl) {
-        String url = baseUrl + "/championship/players"; // Correction du endpoint
+        String url = baseUrl + "/championship/players";
         try {
-            ResponseEntity<List<Player>> response = restTemplate.exchange(
+            ResponseEntity<List<PlayerDTO>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Player>>() {
+                    new ParameterizedTypeReference<>() {
                     }
             );
-            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+            return response.getBody() != null
+                    ? response.getBody().stream()
+                    .map(dto -> new Player(
+                            dto.getId(),
+                            dto.getName(),
+                            dto.getNumber(),
+                            dto.getPosition(),
+                            dto.getNationality(),
+                            dto.getAge(),
+                            dto.getChampionship(),
+                            dto.getScoredGoals(),
+                            dto.getPlayingTime().getValue(),
+                            dto.getPlayingTime().getDurationUnit()
+                    ))
+                    .collect(Collectors.toList())
+                    : Collections.emptyList();
         } catch (RestClientException e) {
             logger.error("Failed to fetch players from {}", url, e);
             throw new RuntimeException("Failed to fetch players from " + url, e);
