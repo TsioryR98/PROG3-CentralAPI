@@ -22,59 +22,27 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClubService {
     private final ClubDAO clubDAO;
-    private final DbConnection dbConnection;
 
-    public List<Club> findBestClubs(int top) {
-        String sql = """
-                SELECT
-                    c.club_id AS id,
-                    c.club_name AS name,
-                    c.acronym,
-                    c.year_creation AS yearCreation,
-                    c.stadium,
-                    c.coach_name AS coachName,
-                    c.nationality AS coachNationality,
-                    c.championship,
-                    c.scored_goals AS scoredGoals,
-                    c.conceded_goals AS concededGoals,
-                    c.difference_goals AS differenceGoals,
-                    c.clean_sheets AS cleanSheetNumber,
-                    c.ranking_points AS rankingPoints
-                FROM club c
-                ORDER BY c.ranking_points DESC, c.difference_goals DESC, c.clean_sheets DESC
-                LIMIT ?
-                """;
+    public List<ClubRanking> getBestClubs(int top) {
+        List<Club> clubs = clubDAO.findBestClubs(top);
 
-        List<Club> clubs = new ArrayList<>();
-
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
-            preparedStatement.setInt(1, top);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    Club club = new Club(
-                            resultSet.getString("id"),
-                            resultSet.getString("name"),
-                            resultSet.getString("acronym"),
-                            resultSet.getInt("yearCreation"),
-                            resultSet.getString("stadium"),
-                            resultSet.getString("coachName"),
-                            resultSet.getString("coachNationality"),
-                            resultSet.getInt("scoredGoals"),
-                            resultSet.getInt("concededGoals"),
-                            resultSet.getInt("differenceGoals"),
-                            resultSet.getInt("cleanSheetNumber"),
-                            Championship.valueOf(resultSet.getString("championship"))
-                    );
-                    clubs.add(club);
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error fetching best clubs: " + e.getMessage(), e);
-        }
-
-        return clubs;
+        return clubs.stream()
+                .map(club -> new ClubRanking(
+                        clubs.indexOf(club) + 1,
+                        new ClubMinimumInfo(
+                                club.getId(),
+                                club.getName(),
+                                club.getAcronym(),
+                                club.getYearCreation(),
+                                club.getStadium(),
+                                new Coach(club.getCoachName(), club.getCoachNationality())
+                        ),
+                        club.getScoredGoals() + club.getDifferenceGoals(),
+                        club.getScoredGoals(),
+                        club.getConcededGoals(),
+                        club.getDifferenceGoals(),
+                        club.getCleanSheetNumber()
+                ))
+                .collect(Collectors.toList());
     }
 }
