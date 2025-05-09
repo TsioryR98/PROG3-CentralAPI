@@ -1,12 +1,8 @@
 package com.central_fifa.dao.championshipOperations;
 
 import com.central_fifa.config.DbConnection;
+import com.central_fifa.dao.mapper.PlayerMapper;
 import com.central_fifa.model.Player;
-import com.central_fifa.model.PlayerRanking;
-import com.central_fifa.model.PlayingTime;
-import com.central_fifa.model.enums.Championship;
-import com.central_fifa.model.enums.DurationUnit;
-import com.central_fifa.model.enums.PlayerPosition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -21,8 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlayerDAO {
     private final DbConnection dbConnection;
+    private PlayerMapper playerMapper;
 
-    public void save(Player player) {
+    public void saveFetchedPlayerIntoClub(Player player) {
         String sql = """
                 INSERT INTO player (player_id, player_name, number, position, nationality, age, championship, scored_goals, playing_time_value, playing_time_duration_unit)
                                 VALUES (?::uuid, ?, ?, ?::position_enum, ?, ?, ?::championship_enum, ?, ?, ?::duration_unit_enum)
@@ -49,6 +46,7 @@ public class PlayerDAO {
     }
 
     public List<Player> findBestPlayers(int top) {
+        List<Player> players = new ArrayList<>();
         String sql = """
                 SELECT
                     p.player_id AS id,
@@ -65,35 +63,18 @@ public class PlayerDAO {
                 ORDER BY p.scored_goals DESC, p.playing_time_value DESC
                 LIMIT ?
                 """;
-
-        List<Player> players = new ArrayList<>();
-
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
             preparedStatement.setInt(1, top);
-
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    Player player = new Player(
-                            resultSet.getString("id"),
-                            resultSet.getString("name"),
-                            resultSet.getInt("number"),
-                            PlayerPosition.valueOf(resultSet.getString("position")),
-                            resultSet.getString("nationality"),
-                            resultSet.getInt("age"),
-                            Championship.valueOf(resultSet.getString("championship")),
-                            resultSet.getInt("scored_goals"),
-                            resultSet.getDouble("value"),
-                            DurationUnit.valueOf(resultSet.getString("durationUnit"))
-                    );
+                    Player player = playerMapper.apply(resultSet);
                     players.add(player);
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error fetching best players: " + e.getMessage(), e);
         }
-
         return players;
     }
 }

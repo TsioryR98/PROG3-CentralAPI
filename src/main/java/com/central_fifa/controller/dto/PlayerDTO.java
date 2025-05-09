@@ -1,4 +1,4 @@
-package com.central_fifa.dto;
+package com.central_fifa.controller.dto;
 
 import com.central_fifa.model.PlayingTime;
 import com.central_fifa.model.enums.Championship;

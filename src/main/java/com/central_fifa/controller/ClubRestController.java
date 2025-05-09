@@ -1,7 +1,7 @@
 package com.central_fifa.controller;
 
 import com.central_fifa.model.ClubRanking;
-import com.central_fifa.service.centralService.ClubService;
+import com.central_fifa.service.championshipService.ClubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;

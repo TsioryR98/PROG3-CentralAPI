@@ -2,7 +2,7 @@ package com.central_fifa.controller;
 
 import com.central_fifa.model.PlayerRanking;
 import com.central_fifa.model.enums.DurationUnit;
-import com.central_fifa.service.centralService.PlayerService;
+import com.central_fifa.service.championshipService.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;

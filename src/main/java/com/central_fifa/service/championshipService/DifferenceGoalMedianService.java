@@ -1,4 +1,4 @@
-package com.central_fifa.service.centralService;
+package com.central_fifa.service.championshipService;
 
 import com.central_fifa.dao.championshipOperations.DifferenceGoalMedianDao;
 import com.central_fifa.model.ChampionshipRanking;

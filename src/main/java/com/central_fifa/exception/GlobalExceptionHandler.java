@@ -24,4 +24,5 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("An unexpected error occurred: " + ex.getMessage());
     }
+
 }

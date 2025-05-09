@@ -1,8 +1,8 @@
 package com.central_fifa.dao.championshipOperations;
 
 import com.central_fifa.config.DbConnection;
+import com.central_fifa.dao.mapper.DifferenceGoalMedianMapper;
 import com.central_fifa.model.DifferenceGoalMedian;
-import com.central_fifa.model.enums.Championship;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -17,8 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DifferenceGoalMedianDao {
     private final DbConnection dbConnection;
+    private final DifferenceGoalMedianMapper goalMedianMapper;
 
-    public void save(DifferenceGoalMedian median) {
+    public void saveFetchedGoalMedian(DifferenceGoalMedian median) {
         String sql = "INSERT INTO difference_goal_median (championship, difference_goal_median) " +
                 "VALUES (?::championship_enum, ?) " +
                 "ON CONFLICT (championship) DO UPDATE SET " +
@@ -35,23 +36,18 @@ public class DifferenceGoalMedianDao {
     }
 
     public List<DifferenceGoalMedian> findAllOrderedByMedian() {
+        List<DifferenceGoalMedian> medians = new ArrayList<>();
         String sql = """
                 SELECT championship, difference_goal_median
                 FROM difference_goal_median
                 ORDER BY difference_goal_median ASC
                 """;
-
-        List<DifferenceGoalMedian> medians = new ArrayList<>();
-
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                DifferenceGoalMedian median = new DifferenceGoalMedian(
-                        resultSet.getInt("difference_goal_median"),
-                        Championship.valueOf(resultSet.getString("championship"))
-                );
+                DifferenceGoalMedian median = goalMedianMapper.apply(resultSet);
                 medians.add(median);
             }
         } catch (SQLException e) {
