@@ -10,6 +10,6 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class DifferenceGoalMedian {
-    private int median;
+    private int differenceGoalsMedian;
     private Championship championship;
 }
