@@ -35,13 +35,15 @@ public class SynchronizationService {
     private final PlayerDAO playerDAO;
     private final DifferenceGoalMedianDao differenceGoalMedianDao;
     private final DataValidator dataValidator;
+    @Autowired
     private final ClubRankingRestMapper clubRankingRestMapper;
+    @Autowired
     private final PlayerRankingRestMapper playerRankingRestMapper;
 
     // API endpoints
     private static final Map<Integer, ApiEndpoint> API_ENDPOINTS = Map.of(
-            8081, new ApiEndpoint("http://localhost:8081/", Championship.LA_LIGA),
-            8082, new ApiEndpoint("http://localhost:8082/", Championship.LIGUE_1)
+            8081, new ApiEndpoint("http://localhost:8081/", Championship.LA_LIGA)
+            //,8082, new ApiEndpoint("http://localhost:8082/", Championship.LIGUE_1)
     );
 
     public Map<String, Object> synchronizeData() {

@@ -15,4 +15,4 @@ CREATE TABLE club
     difference_goals Int DEFAULT 0,
     clean_sheets     Int DEFAULT 0,
     PRIMARY KEY (club_id, championship)
-)
+);

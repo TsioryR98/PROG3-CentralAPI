@@ -4,6 +4,7 @@ import com.central_fifa.config.DbConnection;
 import com.central_fifa.dao.mapper.ClubMapper;
 import com.central_fifa.model.Club;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ClubDAO {
     private final DbConnection dbConnection;
+    @Autowired
     private ClubMapper clubMapper;
 
     public void saveFetchedClubIntoCentral(Club club) {

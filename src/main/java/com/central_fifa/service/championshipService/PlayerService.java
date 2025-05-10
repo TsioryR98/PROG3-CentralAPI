@@ -7,6 +7,7 @@ import com.central_fifa.model.PlayerRanking;
 import com.central_fifa.model.PlayingTime;
 import com.central_fifa.model.enums.DurationUnit;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlayerService {
     private final PlayerDAO playerDAO;
+    @Autowired
     private PlayerRankingRestMapper playerRankingRestMapper;
 
     private void convertPlayingTimeValue(Player player, DurationUnit targetPlayingTimeUnit){

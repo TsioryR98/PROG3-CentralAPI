@@ -4,6 +4,7 @@ import com.central_fifa.config.DbConnection;
 import com.central_fifa.dao.mapper.PlayerMapper;
 import com.central_fifa.model.Player;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlayerDAO {
     private final DbConnection dbConnection;
+    @Autowired
     private PlayerMapper playerMapper;
 
     public void saveFetchedPlayerIntoClub(Player player) {
@@ -57,8 +59,8 @@ public class PlayerDAO {
                     p.age,
                     p.championship,
                     p.scored_goals,
-                    p.playing_time_value AS value,
-                    p.playing_time_duration_unit AS durationUnit
+                    p.playing_time_value,
+                    p.playing_time_duration_unit
                 FROM player p
                 ORDER BY p.scored_goals DESC, p.playing_time_value DESC
                 LIMIT ?

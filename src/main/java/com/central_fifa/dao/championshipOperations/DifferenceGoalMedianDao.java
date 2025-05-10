@@ -4,6 +4,7 @@ import com.central_fifa.config.DbConnection;
 import com.central_fifa.dao.mapper.DifferenceGoalMedianMapper;
 import com.central_fifa.model.DifferenceGoalMedian;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DifferenceGoalMedianDao {
     private final DbConnection dbConnection;
+    @Autowired
     private final DifferenceGoalMedianMapper goalMedianMapper;
 
     public void saveFetchedGoalMedian(DifferenceGoalMedian median) {
