@@ -56,7 +56,7 @@ public class SynchronizationService {
                 // get and validate the clubs
                 List<Club> clubs = fetchClubs(baseUrl);
                 clubs.stream()
-                        .peek(club -> club.setChampionship(championship)) // Définir le championship
+                        .peek(club -> club.setChampionship(championship)) //
                         .filter(dataValidator::isValidClub)
                         .forEach(clubDAO::saveFetchedClubIntoCentral);
                 result.put(apiKey + "-clubs", clubs);
