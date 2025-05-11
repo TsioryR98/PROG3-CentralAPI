@@ -2,6 +2,7 @@ package com.central_fifa.controller;
 
 import com.central_fifa.service.centralService.SynchronizationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +19,12 @@ public class DefaultRestController {
     }
 
     @PostMapping("/synchronization")
-    public Map<String, Object> synchronize() {
-        return synchronizationService.synchronizeData();
+    public ResponseEntity<?> synchronize() {
+        try {
+            synchronizationService.synchronizeData();
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(500).body("Erreur : " + e.getMessage());
+        }
     }
 }
