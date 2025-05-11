@@ -14,13 +14,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClubService {
     private final ClubDAO clubDAO;
-    @Autowired
-    private final ClubRankingRestMapper clubRankingRestMapper;
 
-    public List<ClubRanking> getBestClubs(int top) {
+    public List<Club> getBestClubs(int top) {
         List<Club> clubs = clubDAO.findBestClubs(top);
-        return clubs.stream()
-                .map(club -> clubRankingRestMapper.mapToClubRanking(club,clubs))
-                .collect(Collectors.toList());
+        return clubs;
     }
 }
