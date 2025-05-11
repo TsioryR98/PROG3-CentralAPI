@@ -1,7 +1,6 @@
 package com.central_fifa.model;
 
 import com.central_fifa.model.enums.Championship;
-import com.central_fifa.model.enums.DurationUnit;
 import lombok.*;
 
 @Getter
@@ -10,7 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class PlayingTime {
-    private Double value;
-    private DurationUnit durationUnit;
+public class ChampionshipRanking {
+    private int rank;
+    private Championship championship;
+    private double differenceGoalsMedian;
 }

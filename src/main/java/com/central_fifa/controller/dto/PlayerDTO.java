@@ -1,25 +1,22 @@
-package com.central_fifa.model;
+package com.central_fifa.controller.dto;
 
+import com.central_fifa.model.PlayingTime;
 import com.central_fifa.model.enums.Championship;
-import com.central_fifa.model.enums.DurationUnit;
 import com.central_fifa.model.enums.PlayerPosition;
 import lombok.*;
 
 @Getter
-@AllArgsConstructor
 @Setter
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
-public class Player {
+@AllArgsConstructor
+public class PlayerDTO {
     private String id;
     private String name;
-    private int number;
+    private Integer number;
     private PlayerPosition position;
     private String nationality;
-    private int age;
+    private Integer age;
     private Championship championship;
     private int scoredGoals;
-    private Double playingTimeValue;
-    private DurationUnit playingTimeDurationUnit;
+    private PlayingTime playingTime;
 }

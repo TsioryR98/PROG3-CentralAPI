@@ -1,7 +1,6 @@
 package com.central_fifa.model;
 
 import com.central_fifa.model.enums.Championship;
-import com.central_fifa.model.enums.DurationUnit;
 import com.central_fifa.model.enums.PlayerPosition;
 import lombok.*;
 
@@ -11,7 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class Player {
+public class PlayerRanking {
+    private int rank;
     private String id;
     private String name;
     private int number;
@@ -20,6 +20,5 @@ public class Player {
     private int age;
     private Championship championship;
     private int scoredGoals;
-    private Double playingTimeValue;
-    private DurationUnit playingTimeDurationUnit;
+    private PlayingTime playingTime;
 }
