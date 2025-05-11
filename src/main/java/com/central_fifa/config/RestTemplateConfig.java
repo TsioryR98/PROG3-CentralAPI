@@ -15,10 +15,6 @@ public class RestTemplateConfig {
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        HttpClient httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(5))
-                .build();
-
         return builder
                 .requestFactory(SimpleClientHttpRequestFactory::new)
                 .build();

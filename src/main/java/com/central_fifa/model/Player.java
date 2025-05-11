@@ -11,7 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode
-
 public class Player {
     private String id;
     private String name;
