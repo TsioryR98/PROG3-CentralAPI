@@ -21,7 +21,7 @@ public class DifferenceGoalMedianService {
                 .mapToObj(index -> {
                     DifferenceGoalMedian median = medians.get(index);
                     return new ChampionshipRanking(
-                            index + 1, // Classement
+                            index + 1, // ranking starts from 1
                             median.getChampionship(),
                             median.getDifferenceGoalsMedian()
                     );
