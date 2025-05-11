@@ -4,7 +4,6 @@ import com.central_fifa.controller.dto.PlayerRankingRestMapper;
 import com.central_fifa.dao.championshipOperations.PlayerDAO;
 import com.central_fifa.model.Player;
 import com.central_fifa.model.PlayerRanking;
-import com.central_fifa.model.PlayingTime;
 import com.central_fifa.model.enums.DurationUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PlayerService {
     private final PlayerDAO playerDAO;
-    @Autowired
-    private PlayerRankingRestMapper playerRankingRestMapper;
 
     private void convertPlayingTimeValue(Player player, DurationUnit targetPlayingTimeUnit){
         //Convert method
@@ -31,12 +28,10 @@ public class PlayerService {
         player.setPlayingTimeDurationUnit(targetPlayingTimeUnit);
     }
 
-    public List<PlayerRanking> getBestPlayers(int top, DurationUnit playingTimeUnit) {
+    public List<Player> getBestPlayers(int top, DurationUnit playingTimeUnit) {
         List<Player> players = playerDAO.findBestPlayers(top);
         //convert
         players.forEach(player -> convertPlayingTimeValue(player,playingTimeUnit));
-        return players.stream()
-                .map(player -> playerRankingRestMapper.mapToPlayerRanking(player, players))
-                .collect(Collectors.toList());
+        return players;
     }
 }
