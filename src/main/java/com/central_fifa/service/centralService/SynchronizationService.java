@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor //inject dep
+@RequiredArgsConstructor
 public class SynchronizationService {
     private static final Logger logger = LoggerFactory.getLogger(SynchronizationService.class);
 
@@ -42,8 +42,8 @@ public class SynchronizationService {
 
     // API endpoints
     private static final Map<Integer, ApiEndpoint> API_ENDPOINTS = Map.of(
-            8081, new ApiEndpoint("http://localhost:8081/", Championship.LA_LIGA)
-            //,8082, new ApiEndpoint("http://localhost:8082/", Championship.LIGUE_1)
+            8081, new ApiEndpoint("http://localhost:8081/", Championship.LA_LIGA),
+            8082, new ApiEndpoint("http://localhost:8082/", Championship.LIGUE_1)
     );
 
     public Map<String, Object> synchronizeData() {
@@ -58,7 +58,10 @@ public class SynchronizationService {
                 // get and validate the clubs
                 List<Club> clubs = fetchClubs(baseUrl);
                 clubs.stream()
-                        .peek(club -> club.setChampionship(championship)) //
+                        .map(club -> {
+                            club.setChampionship(championship);
+                            return club;
+                        })
                         .filter(dataValidator::isValidClub)
                         .forEach(clubDAO::saveFetchedClubIntoCentral);
                 result.put(apiKey + "-clubs", clubs);
@@ -66,7 +69,10 @@ public class SynchronizationService {
                 // get and validate the players
                 List<Player> players = fetchPlayers(baseUrl);
                 players.stream()
-                        .peek(player -> player.setChampionship(championship)) // Définir le championship
+                        .map(player -> {
+                            player.setChampionship(championship);
+                            return player;
+                        })
                         .filter(dataValidator::isValidPlayer)
                         .forEach(playerDAO::saveFetchedPlayerIntoClub);
                 result.put(apiKey + "-players", players);
