@@ -27,13 +27,10 @@ public class SynchronizationService {
     private final DataValidator dataValidator;
     private final ApiClient apiClient;
 
-    public Map<String, Object> synchronizeData() {
-        Map<String, Object> result = new LinkedHashMap<>();
-
+    public void synchronizeData() {
         for (Map.Entry<Integer, ApiEndpoint> entry : API_ENDPOINTS.entrySet()) {
             String baseUrl = entry.getValue().getUrl();
             Championship championship = entry.getValue().getChampionship();
-            String apiKey = "api-" + entry.getKey();
 
             try {
                 // get and validate the clubs
@@ -45,7 +42,6 @@ public class SynchronizationService {
                         })
                         .filter(dataValidator::isValidClub)
                         .forEach(clubDAO::saveFetchedClubIntoCentral);
-                result.put(apiKey + "-clubs", clubs);
 
                 // get and validate the players
                 List<Player> players = apiClient.fetchPlayers(baseUrl);
@@ -56,7 +52,6 @@ public class SynchronizationService {
                         })
                         .filter(dataValidator::isValidPlayer)
                         .forEach(playerDAO::saveFetchedPlayerIntoClub);
-                result.put(apiKey + "-players", players);
 
                 // get and validate the goals mediana
                 Integer median = apiClient.fetchDifferenceGoalMedian(baseUrl);
@@ -64,16 +59,13 @@ public class SynchronizationService {
                     DifferenceGoalMedian medianModel = new DifferenceGoalMedian(median, championship);
                     if (dataValidator.isValidDifferenceGoalMedian(medianModel)) {
                         differenceGoalMedianDao.saveFetchedGoalMedian(medianModel);
-                        result.put(apiKey + "-differenceGoalsMedian", medianModel);
                     }
                 }
 
             } catch (Exception e) {
                 logger.error("Error synchronizing data from {}", baseUrl, e);
-                result.put(apiKey + "-error", "Failed to fetch data: " + e.getMessage());
+                throw new RuntimeException(e.getMessage());
             }
         }
-
-        return result;
     }
 }
